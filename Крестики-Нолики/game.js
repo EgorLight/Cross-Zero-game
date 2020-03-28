@@ -1,110 +1,51 @@
-// Инициализация
-var cells = [];
-var move = 1;
+// Инициализация переменных и массива.
+const VOID = 0;
+const ZEROS = 1;
+const CROSSES = 2; 
 
-// Создание массива со значениями ячеек (занятая/свободная)
+const WIN_CASES = [
+    '100010001',
+    '001010100',
+    '111000000',
+    '000111000',
+    '000000111',
+    '100100100',
+    '010010010',
+    '001001001'
+]
 
-function initialization() {
-    // Обнуление ячеек
+var cells = new Array(9);
+cells = cells.fill(0);
+var activePlayer = selectSide();
+var i;
 
-    for (var i = 0; i < 9; i++) {
-        cells[i] = 0;
+addEventsListeners();
+
+// Обнуление игры.
+function clearGame() {
+    cells = cells.fill(0);
+    for (i = 0; i < 9; i++) {
+        document.getElementById(i).className = "cell";
     }
 }
 
-initialization();
+// Выбор стороны (крестики/нолики).
+function selectSide() {
+    return ZEROS;
+}
 
-function checkDraw() {
-    for (var i = 0; i < 9; i++) {
-        if (cells[i] == 0) {
-            return 0;
-        }
+// Добавление обработчиков ко всем клеткам.
+function addEventsListeners() {
+    for (i = 0; i < 9; i++) {
+        document.getElementById(i).addEventListener('click', takeCell);
     }
-    return 1;
+    document.getElementById('clearButton').addEventListener('click', clearGame);
 }
 
-function checkWin() {
-    if (
-        ((cells[0] == 1) && (cells[1] == 1) && (cells[2] == 1)) ||
-        ((cells[3] == 1) && (cells[4] == 1) && (cells[5] == 1)) ||
-        ((cells[6] == 1) && (cells[7] == 1) && (cells[8] == 1)) ||
-        ((cells[0] == 1) && (cells[3] == 1) && (cells[6] == 1)) ||
-        ((cells[1] == 1) && (cells[4] == 1) && (cells[7] == 1)) ||
-        ((cells[2] == 1) && (cells[5] == 1) && (cells[8] == 1)) ||
-        ((cells[0] == 1) && (cells[4] == 1) && (cells[8] == 1)) ||
-        ((cells[2] == 1) && (cells[4] == 1) && (cells[6] == 1)) 
-        ) {
-            return 1;
-        }
-    if (
-        ((cells[0] == 2) && (cells[1] == 2) && (cells[2] == 2)) ||
-        ((cells[3] == 2) && (cells[4] == 2) && (cells[5] == 2)) ||
-        ((cells[6] == 2) && (cells[7] == 2) && (cells[8] == 2)) ||
-        ((cells[0] == 2) && (cells[3] == 2) && (cells[6] == 2)) ||
-        ((cells[1] == 2) && (cells[4] == 2) && (cells[7] == 2)) ||
-        ((cells[2] == 2) && (cells[5] == 2) && (cells[8] == 2)) ||
-        ((cells[0] == 2) && (cells[4] == 2) && (cells[8] == 2)) ||
-        ((cells[2] == 2) && (cells[4] == 2) && (cells[6] == 2)) 
-        ) {
-            return 2;
-        }
-}
-// Заниятие ячейки
-
-function takePlace(cell) {
-
-    // Если ячейка свободна, то занять ее  
-
-    if (checkPlace(cell) == true) {
-        
-        //Визуальная вставка крестика/нолика
-
-        if (move == 1) {
-            cell.style.backgroundImage = 'url(circle.svg)';
-        }
-        else {
-            cell.style.backgroundImage = 'url(cross.svg)';
-        }
-        
-        // Добавление значений в массив cells
-        var cellId = cell.id;
-        cells[Number(cellId)] = move;
-
-        
-
-        // Смена хода
-
-        if (move == 1) {
-            move = 2;
-        }
-        else {
-            move = 1;
-        }
-
-        // Проверка на победу игроков
-
-        if (checkWin() == 1) {
-            alert('Победили нолики!');
-            playAgain();
-        }
-        if (checkWin() == 2) {
-            alert('Победили Крестики!');
-            playAgain();
-        }
-        // Проверка на ничью
-
-        if (checkDraw() == 1) {
-            alert('Ничья!');
-            playAgain();
-        };
-    }
-}
-
-// Проверка ячейки на свободность
-
+// Проверка клетки на занятость.
 function checkPlace(cell) {
     var cellId = cell.id;
-    if (cells[cellId] == 0) {
+    if (cells[cellId] == VOID) {
         return true;
     }
     else {
@@ -112,17 +53,63 @@ function checkPlace(cell) {
     }
 }
 
-// Обнуление по кнопке "Начать заново"
+// Проверка на ничью.
+function checkDraw() {
+    if (cells.indexOf(0,0) == -1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
-function playAgain() {
-    
-    // Обнуление массива (см. строку 5)
+// Проверка на победу.
+function checkWin(side) {
+    var cellsStr = cells.join('');
 
-    initialization();
+    if (side == ZEROS) {
+        cellsStr = cellsStr.replace(/2/g,'0');
+    }
+    if (side == CROSSES) {
+        cellsStr = cellsStr.replace(/1/g,'0');
+        cellsStr = cellsStr.replace(/2/g,'1');
+    }
 
-    // Визуальное обнуление ячеек
+    if (WIN_CASES.indexOf(cellsStr, 0) != -1) {
+        return true;
+    } 
+    else {
+        return false;
+    }
+}
 
-    for (var i = 0; i < 9; i++) {
-        document.getElementById(String(i)).style.backgroundImage = 'none';
+// Заниятие ячейки.
+function takeCell() {
+
+    // Если ячейка свободна, то занять ее.  
+    if (checkPlace(event.target) == true) {
+        
+        //Визуальная вставка крестика/нолика.
+        (activePlayer == ZEROS) ? event.target.className = "cell zero" : event.target.className = "cell cross";
+        
+        // Добавление значений в массив cells
+        var cellId = event.target.id;
+        cells[cellId] = activePlayer;
+
+        // Смена хода
+        (activePlayer == ZEROS) ? activePlayer = CROSSES : activePlayer = ZEROS;
+
+        // Проверка на победу игроков
+        if (checkWin(ZEROS) == true) {
+            alert('Нолики победили!');
+        }
+        if (checkWin(CROSSES) == true) {
+            alert('Крестики победили!');
+        }
+
+        // Проверка на ничью
+        if (checkDraw() == true) {
+            alert('Ничья!');
+        }
     }
 }

@@ -16,6 +16,12 @@ h1 {
 h1, .game-area, button {
     margin: 50px;
 }
+.cross {
+    background-image: url(cross.svg);
+}
+.zero {
+    background-image: url(zero.svg);
+}
 button {
     font-family: 'Montserrat Alternates', sans-serif;
     color: #1e272e;
