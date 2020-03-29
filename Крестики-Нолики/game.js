@@ -4,14 +4,14 @@ const ZEROS = 1;
 const CROSSES = 2; 
 
 const WIN_CASES = [
-    '100010001',
-    '001010100',
-    '111000000',
-    '000111000',
-    '000000111',
-    '100100100',
-    '010010010',
-    '001001001'
+    /1...1...1/,
+    /..1.1.1../,
+    /111....../,
+    /...111.../,
+    /......111/,
+    /1..1..1../,
+    /.1..1..1./,
+    /..1..1..1/
 ]
 
 var cells = new Array(9);
@@ -45,22 +45,12 @@ function addEventsListeners() {
 // Проверка клетки на занятость.
 function checkPlace(cell) {
     var cellId = cell.id;
-    if (cells[cellId] == VOID) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return cells[cellId] == VOID;
 }
 
 // Проверка на ничью.
 function checkDraw() {
-    if (cells.indexOf(0,0) == -1) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return cells.indexOf(0,0) == -1;
 }
 
 // Проверка на победу.
@@ -75,22 +65,23 @@ function checkWin(side) {
         cellsStr = cellsStr.replace(/2/g,'1');
     }
 
-    if (WIN_CASES.indexOf(cellsStr, 0) != -1) {
-        return true;
-    } 
-    else {
-        return false;
+    console.log(cellsStr);
+    for (i = 0; i < 8; i++) {
+        if (cellsStr.match(WIN_CASES[i]) != null) {
+            return true;
+        }
     }
+    return false;
 }
 
 // Заниятие ячейки.
 function takeCell() {
 
     // Если ячейка свободна, то занять ее.  
-    if (checkPlace(event.target) == true) {
+    if (checkPlace(event.target)) {
         
         //Визуальная вставка крестика/нолика.
-        (activePlayer == ZEROS) ? event.target.className = "cell zero" : event.target.className = "cell cross";
+        event.target.className = (activePlayer == ZEROS) ? "cell zero" : "cell cross";
         
         // Добавление значений в массив cells
         var cellId = event.target.id;
@@ -100,16 +91,19 @@ function takeCell() {
         (activePlayer == ZEROS) ? activePlayer = CROSSES : activePlayer = ZEROS;
 
         // Проверка на победу игроков
-        if (checkWin(ZEROS) == true) {
+        if (checkWin(ZEROS)) {
             alert('Нолики победили!');
+            return;
         }
-        if (checkWin(CROSSES) == true) {
+        if (checkWin(CROSSES)) {
             alert('Крестики победили!');
+            return;
         }
-
+ 
         // Проверка на ничью
-        if (checkDraw() == true) {
+        if (checkDraw()) {
             alert('Ничья!');
+            return;
         }
     }
 }
